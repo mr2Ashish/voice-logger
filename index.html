@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aryavarta Voice Monitor</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 20px; background: #0f172a; color: white; }
+    .card { background: #1e293b; max-width: 400px; margin: auto; padding: 20px; border-radius: 12px; }
+    input { width: 90%; padding: 12px; margin-bottom: 20px; border-radius: 8px; text-align: center; font-size: 16px; }
+    button { background: #10b981; color: white; border: none; padding: 14px; border-radius: 8px; width: 100%; font-size: 18px; cursor: pointer; }
+    #status { margin-top: 15px; color: #38bdf8; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>⚡ Aryavarta Web Call</h2>
+    <input type="tel" id="phone" placeholder="Enter 10-digit Mobile Number" maxlength="10">
+    <button id="callBtn" onclick="startCall()">📞 Answer Daily Call</button>
+    <div id="status">Ready to connect...</div>
+  </div>
+
+  <script>
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzU06YZB3YCuNph4T9_hOp9KmQI3sbIwpgWivOndgUxw4AGG6UutjNTpqeIbFrHMjxh/exec";
+    const questions = ["आज आपने किस प्रोजेक्ट पर काम किया?", "आज का आपका क्या टास्क था?", "आज आपका कितना टास्क पूरा हुआ है?", "आज का कितना टास्क बाकी है?"];
+    let currentStep = 0, answers = [], recognition;
+
+    if ('webkitSpeechRecognition' in window) {
+      recognition = new webkitSpeechRecognition();
+      recognition.lang = 'hi-IN';
+    } else { alert("Use Google Chrome."); }
+
+    function speak(text, callback) {
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'hi-IN';
+      utter.onend = callback;
+      window.speechSynthesis.speak(utter);
+      document.getElementById("status").innerText = "🤖 Speaking...";
+    }
+
+    function listen() {
+      document.getElementById("status").innerText = "🎙️ Listening... Speak now.";
+      try { recognition.start(); } catch(e) {}
+    }
+
+    recognition.onresult = (e) => {
+      answers.push(e.results[0][0].transcript.trim());
+      currentStep++;
+      currentStep < questions.length ? askNext() : finishCall();
+    };
+
+    recognition.onerror = recognition.onnomatch = () => {
+      speak("मुझे समझ नहीं आया। " + questions[currentStep], listen);
+    };
+
+    function startCall() {
+      if (document.getElementById("phone").value.length < 10) return alert("Enter valid phone.");
+      document.getElementById("callBtn").disabled = true;
+      answers = []; currentStep = 0;
+      speak("नमस्ते, मैं आर्यावर्त ऑटोमेशन से हूँ। " + questions[0], listen);
+    }
+
+    function askNext() { speak(questions[currentStep], listen); }
+
+    function finishCall() {
+      speak("धन्यवाद। क्लॉक-आउट फॉर्म भर दें।", () => {
+        document.getElementById("status").innerText = "☁️ Syncing to Sheet...";
+        fetch(WEBHOOK_URL, {
+          method: "POST",
+          body: JSON.stringify({ phone: document.getElementById("phone").value, answers: answers })
+        }).then(() => document.getElementById("status").innerText = "✅ Daily Log Submitted!")
+          .catch(() => { document.getElementById("status").innerText = "❌ Sync failed. Please try again."; document.getElementById("callBtn").disabled = false; });
+      });
+    }
+  </script>
+</body>
+</html>
