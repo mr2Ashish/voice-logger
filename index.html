@@ -3,31 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aryavarta Voice Monitor</title>
+  <title>Aryavarta Voice & Text Monitor</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 25px 15px; background: #0f172a; color: #f8fafc; }
-    .card { background: #1e293b; max-width: 420px; margin: 0 auto; padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); border: 1px solid #334155; }
-    input { width: 90%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #fff; font-size: 16px; text-align: center; }
-    button { background: #10b981; color: #fff; border: none; padding: 14px 28px; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; }
-    button:disabled { background: #64748b; }
-    #status { margin-top: 20px; font-size: 15px; color: #38bdf8; min-height: 45px; }
-    .transcript { font-size: 13px; color: #94a3b8; margin-top: 15px; text-align: left; background: #0f172a; padding: 12px; border-radius: 8px; }
+    .card { background: #1e293b; max-width: 440px; margin: 0 auto; padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); border: 1px solid #334155; }
+    .badge { background: #0284c7; color: #fff; font-size: 13px; padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 12px; }
+    textarea { width: 92%; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #fff; font-size: 16px; min-height: 80px; resize: none; margin-top: 10px; }
+    button { background: #10b981; color: #fff; border: none; padding: 14px 28px; border-radius: 12px; font-size: 17px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; margin-top: 15px; }
+    button:disabled { background: #64748b; cursor: not-allowed; }
+    #questionBox { font-size: 17px; font-weight: 600; color: #38bdf8; margin: 15px 0; min-height: 48px; }
+    #status { margin-top: 15px; font-size: 14px; color: #94a3b8; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>⚡ Aryavarta Web Call</h2>
-    <p style="color:#94a3b8; font-size:13px;">Daily Shop Floor Voice Log</p>
-    
-    <input type="tel" id="phone" placeholder="Enter 10-digit Mobile Number" maxlength="10">
-    <button id="callBtn" onclick="startCall()">📞 Answer Daily Call</button>
-    
-    <div id="status">Ready to connect...</div>
-    <div class="transcript" id="transcript"><b>Call Transcript:</b><br></div>
+    <h2>⚡ Aryavarta Daily Log</h2>
+    <div class="badge" id="phoneBadge">Phone: Detecting...</div>
+
+    <!-- Start View -->
+    <div id="startSection">
+      <p style="color:#94a3b8; font-size:14px; margin-bottom: 20px;">
+        रोबोट सवाल पूछेगा, और आपको अपना जवाब नीचे लिखकर सबमिट करना है।
+      </p>
+      <button id="startBtn" onclick="startLogging()">▶️ शुरू करें (Start)</button>
+    </div>
+
+    <!-- Active Question & Answer View -->
+    <div id="quizSection" class="hidden">
+      <div id="questionBox">...</div>
+      <textarea id="answerInput" placeholder="यहाँ अपना उत्तर लिखें... (Type in any language)"></textarea>
+      <button id="nextBtn" onclick="submitAnswer()">अगला सवाल ➔ (Next)</button>
+    </div>
+
+    <div id="status"></div>
   </div>
 
   <script>
-    // Paste your Google Apps Script Web App URL from Phase 3 here
+    // Paste your Google Apps Script Web App Deployment URL here
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzU06YZB3YCuNph4T9_hOp9KmQI3sbIwpgWivOndgUxw4AGG6UutjNTpqeIbFrHMjxh/exec";
 
     const questions = [
@@ -37,97 +50,90 @@
       "आज का कितना टास्क बाकी है?"
     ];
 
-    let currentStep = -1;
+    let currentStep = 0;
     let answers = [];
-    let synth = window.speechSynthesis;
-    let recognition;
+    let detectedPhone = "";
+    const synth = window.speechSynthesis;
 
-    if ('webkitSpeechRecognition' in window) {
-      recognition = new webkitSpeechRecognition();
-      recognition.lang = 'hi-IN';
-      recognition.continuous = false;
-      recognition.interimResults = false;
-    } else {
-      alert("Please open this link in Google Chrome.");
-    }
+    // Read phone from URL query param (?phone=XXXXXXXXXX)
+    window.onload = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      detectedPhone = (urlParams.get("phone") || "").replace(/[^0-9]/g, "").slice(-10);
+
+      if (detectedPhone.length === 10) {
+        document.getElementById("phoneBadge").innerText = "📱 " + detectedPhone;
+      } else {
+        document.getElementById("phoneBadge").innerText = "⚠️ Phone number missing in link";
+        document.getElementById("startBtn").disabled = true;
+        document.getElementById("status").innerText = "कृपया टेलीग्राम में दिए गए सही लिंक से ओपन करें।";
+      }
+    };
 
     function speak(text, callback) {
+      if (!synth) { if (callback) callback(); return; }
       synth.cancel();
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = 'hi-IN';
       utter.rate = 0.95;
       utter.onend = () => { if (callback) callback(); };
       synth.speak(utter);
-      document.getElementById("status").innerText = "🤖 Speaking: " + text;
     }
 
-    function listen() {
-      document.getElementById("status").innerText = "🎙️ Listening... Please speak now.";
-      try { recognition.start(); } catch(e) {}
+    function startLogging() {
+      document.getElementById("startSection").classList.add("hidden");
+      document.getElementById("quizSection").classList.remove("hidden");
+      askQuestion();
     }
 
-    if (recognition) {
-      recognition.onresult = (event) => {
-        const speechText = event.results[0][0].transcript.trim();
-        if (speechText.length > 0) {
-          document.getElementById("transcript").innerHTML += `<br><b>Q${currentStep + 1}:</b> ${speechText}`;
-          answers.push(speechText);
-          currentStep++;
-          askNext();
-        } else {
-          repeatQuestion();
-        }
-      };
-
-      recognition.onerror = () => { repeatQuestion(); };
-      recognition.onnomatch = () => { repeatQuestion(); };
-    }
-
-    function repeatQuestion() {
-      speak("माफ़ करें, मुझे समझ नहीं आया। " + questions[currentStep], () => {
-        listen();
-      });
-    }
-
-    function startCall() {
-      const phone = document.getElementById("phone").value.trim();
-      if (phone.length < 10) { alert("Please enter your valid 10-digit mobile number."); return; }
+    function askQuestion() {
+      document.getElementById("answerInput").value = "";
+      document.getElementById("answerInput").focus();
       
-      document.getElementById("callBtn").disabled = true;
-      answers = [];
-      currentStep = 0;
+      const qText = `सवाल ${currentStep + 1} of 4: ${questions[currentStep]}`;
+      document.getElementById("questionBox").innerText = qText;
       
-      speak("नमस्ते, मैं आर्यावर्त ऑटोमेशन से हूँ। मैं आपसे डेली वर्क मॉनिटरिंग के बारे में कुछ सवाल पूछना चाहता हूँ। " + questions[0], () => {
-        listen();
-      });
-    }
+      // Robot asks the question out loud
+      speak(questions[currentStep]);
 
-    function askNext() {
-      if (currentStep < questions.length) {
-        speak(questions[currentStep], () => {
-          listen();
-        });
-      } else {
-        finishCall();
+      if (currentStep === questions.length - 1) {
+        document.getElementById("nextBtn").innerText = "✔️ सबमिट करें (Submit Log)";
       }
     }
 
-    function finishCall() {
-      const phone = document.getElementById("phone").value.trim();
-      speak("ओके, आपसे बात करके अच्छा लगा। अगर आपने क्लॉक-आउट अटेंडेंस फॉर्म नहीं भरा है, तो कृपया उसे भर दें। धन्यवाद।", () => {
-        document.getElementById("status").innerText = "☁️ Syncing data to Google Sheets...";
-        
-        fetch(WEBHOOK_URL, {
-          method: "POST",
-          body: JSON.stringify({ phone: phone, answers: answers })
-        })
-        .then(() => {
-          document.getElementById("status").innerText = "✅ Daily Log Submitted Successfully!";
-        })
-        .catch(() => {
-          document.getElementById("status").innerText = "❌ Network error. Please try again.";
-          document.getElementById("callBtn").disabled = false;
-        });
+    function submitAnswer() {
+      const val = document.getElementById("answerInput").value.trim();
+      if (!val) {
+        alert("कृपया बॉक्स में अपना जवाब लिखें।");
+        return;
+      }
+
+      answers.push(val);
+      currentStep++;
+
+      if (currentStep < questions.length) {
+        askQuestion();
+      } else {
+        finalizeSubmission();
+      }
+    }
+
+    function finalizeSubmission() {
+      document.getElementById("quizSection").classList.add("hidden");
+      document.getElementById("status").innerText = "☁️ Google Sheets में सेव हो रहा है...";
+
+      speak("धन्यवाद, आपका आज का वर्क लॉग सबमिट हो रहा है।", () => {});
+
+      fetch(WEBHOOK_URL, {
+        method: "POST",
+        body: JSON.stringify({ phone: detectedPhone, answers: answers })
+      })
+      .then(() => {
+        document.getElementById("status").innerText = "✅ Daily Log Submitted Successfully!";
+        document.getElementById("status").style.color = "#10b981";
+      })
+      .catch(() => {
+        document.getElementById("status").innerText = "❌ Network issue. Please check internet connection.";
+        document.getElementById("status").style.color = "#ef4444";
       });
     }
   </script>
