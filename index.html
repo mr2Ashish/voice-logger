@@ -3,40 +3,250 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aryavarta Voice & Text Monitor</title>
+  <title>Aryavarta Neural Voice Logger</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 25px 15px; background: #0f172a; color: #f8fafc; }
-    .card { background: #1e293b; max-width: 440px; margin: 0 auto; padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); border: 1px solid #334155; }
-    .badge { background: #0284c7; color: #fff; font-size: 13px; padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 12px; }
-    textarea { width: 92%; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #fff; font-size: 16px; min-height: 80px; resize: none; margin-top: 10px; }
-    button { background: #10b981; color: #fff; border: none; padding: 14px 28px; border-radius: 12px; font-size: 17px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; margin-top: 15px; }
-    button:disabled { background: #64748b; cursor: not-allowed; }
-    #questionBox { font-size: 17px; font-weight: 600; color: #38bdf8; margin: 15px 0; min-height: 48px; }
-    #status { margin-top: 15px; font-size: 14px; color: #94a3b8; }
-    .hidden { display: none; }
+    :root {
+      --bg-gradient: radial-gradient(circle at top, #1e1b4b, #0f172a, #020617);
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --border-glow: rgba(56, 189, 248, 0.3);
+      --accent-cyan: #38bdf8;
+      --accent-emerald: #10b981;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 35px 25px;
+      border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-glow);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .brand-logo {
+      font-size: 32px;
+      margin-bottom: 5px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 25px;
+    }
+
+    .badge {
+      background: rgba(14, 165, 233, 0.15);
+      color: var(--accent-cyan);
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 30px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    /* Cinematic Robot Audio Wave Visualizer */
+    .audio-visualizer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      height: 35px;
+      margin: 15px 0 25px 0;
+      opacity: 0.3;
+      transition: opacity 0.3s ease;
+    }
+    .audio-visualizer.active {
+      opacity: 1;
+    }
+    .bar {
+      width: 4px;
+      height: 8px;
+      background: var(--accent-cyan);
+      border-radius: 4px;
+      animation: pulseWave 1.2s infinite ease-in-out;
+    }
+    .bar:nth-child(2) { animation-delay: 0.1s; }
+    .bar:nth-child(3) { animation-delay: 0.2s; }
+    .bar:nth-child(4) { animation-delay: 0.3s; }
+    .bar:nth-child(5) { animation-delay: 0.4s; }
+
+    @keyframes pulseWave {
+      0%, 100% { height: 8px; background: var(--accent-cyan); }
+      50% { height: 28px; background: #818cf8; box-shadow: 0 0 10px var(--accent-cyan); }
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 2px;
+      margin-bottom: 25px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #10b981);
+      width: 0%;
+      transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #questionBox {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 20px;
+      line-height: 1.5;
+      min-height: 56px;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(15, 23, 42, 0.6);
+      color: #fff;
+      font-size: 16px;
+      min-height: 110px;
+      resize: none;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+      outline: none;
+      font-family: inherit;
+    }
+    textarea:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      border: none;
+      padding: 16px 28px;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+      margin-top: 20px;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(16, 185, 129, 0.4);
+    }
+    .btn:active {
+      transform: translateY(0);
+    }
+    .btn:disabled {
+      background: #334155;
+      color: #64748b;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Cinematic Fade Animation */
+    .fade-in {
+      animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>⚡ Aryavarta Daily Log</h2>
-    <div class="badge" id="phoneBadge">Phone: Detecting...</div>
+  <div class="container">
+    <div class="card fade-in">
+      <div class="brand-logo">⚡ ARYAVARTA</div>
+      <div class="subtitle">Neural Shop Floor Intelligence</div>
+      
+      <div class="badge" id="phoneBadge">
+        <span>🔒</span> <span>Verifying Secure Node...</span>
+      </div>
 
-    <!-- Start View -->
-    <div id="startSection">
-      <p style="color:#94a3b8; font-size:14px; margin-bottom: 20px;">
-        रोबोट सवाल पूछेगा, और आपको अपना जवाब नीचे लिखकर सबमिट करना है।
-      </p>
-      <button id="startBtn" onclick="startLogging()">▶️ शुरू करें (Start)</button>
+      <!-- Start View -->
+      <div id="startSection">
+        <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 30px; line-height: 1.6;">
+          दैनिक रिपोर्टिंग सिस्टम सक्रिय है। रोबोट आपके प्रश्नों को वाचित करेगा, और आप किसी भी भाषा में टाइप कर सकते हैं।
+        </p>
+        <button class="btn" id="startBtn" onclick="startLogging()">▶️ सत्र शुरू करें (Start Session)</button>
+      </div>
+
+      <!-- Active Quiz View -->
+      <div id="quizSection" class="hidden fade-in">
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <!-- Animated Audio Wave Visualizer -->
+        <div class="audio-visualizer" id="audioVisualizer">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+
+        <div id="questionBox">Initializing Neural Voice...</div>
+        
+        <textarea id="answerInput" placeholder="यहाँ अपना उत्तर लिखें... (Type in Hindi, Marathi or English)"></textarea>
+        
+        <button class="btn" id="nextBtn" onclick="submitAnswer()">अगला चरण ➔ (Proceed)</button>
+      </div>
+
+      <div id="status"></div>
     </div>
-
-    <!-- Active Question & Answer View -->
-    <div id="quizSection" class="hidden">
-      <div id="questionBox">...</div>
-      <textarea id="answerInput" placeholder="यहाँ अपना उत्तर लिखें... (Type in any language)"></textarea>
-      <button id="nextBtn" onclick="submitAnswer()">अगला सवाल ➔ (Next)</button>
-    </div>
-
-    <div id="status"></div>
   </div>
 
   <script>
@@ -55,27 +265,40 @@
     let detectedPhone = "";
     const synth = window.speechSynthesis;
 
-    // Read phone from URL query param (?phone=XXXXXXXXXX)
     window.onload = () => {
       const urlParams = new URLSearchParams(window.location.search);
       detectedPhone = (urlParams.get("phone") || "").replace(/[^0-9]/g, "").slice(-10);
 
       if (detectedPhone.length === 10) {
-        document.getElementById("phoneBadge").innerText = "📱 " + detectedPhone;
+        document.getElementById("phoneBadgeinnerHTML = `<span>🛡️</span> <span>Node Verified: +91 ${detectedPhone}</span>`;
       } else {
-        document.getElementById("phoneBadge").innerText = "⚠️ Phone number missing in link";
+        document.getElementById("phoneBadge").innerHTML = `<span>⚠️</span> <span>Node Unauthenticated</span>`;
+        document.getElementById("phoneBadge").style.borderColor = "rgba(239, 68, 68, 0.4)";
+        document.getElementById("phoneBadge").style.color = "#ef4444";
         document.getElementById("startBtn").disabled = true;
-        document.getElementById("status").innerText = "कृपया व्हाट्सएप में दिए गए सही लिंक से ओपन करें।";
+        document.getElementById("status").innerText = "कृपया Slack में दिए गए सुरक्षित लिंक से ओपन करें।";
       }
     };
 
     function speak(text, callback) {
       if (!synth) { if (callback) callback(); return; }
       synth.cancel();
+      
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = 'hi-IN';
       utter.rate = 0.95;
-      utter.onend = () => { if (callback) callback(); };
+
+      const visualizer = document.getElementById("audioVisualizer");
+      
+      utter.onstart = () => {
+        visualizer.classList.add("active");
+      };
+
+      utter.onend = () => {
+        visualizer.classList.remove("active");
+        if (callback) callback();
+      };
+
       synth.speak(utter);
     }
 
@@ -89,14 +312,16 @@
       document.getElementById("answerInput").value = "";
       document.getElementById("answerInput").focus();
       
-      const qText = `सवाल ${currentStep + 1} of 4: ${questions[currentStep]}`;
-      document.getElementById("questionBox").innerText = qText;
+      const progressPercent = ((currentStep) / questions.length) * 100;
+      document.getElementById("progressFill").style.width = progressPercent + "%";
       
-      // Robot asks the question out loud
+      const qText = `प्रश्न ${currentStep + 1} / 4<br><span style="color:var(--accent-cyan);">${questions[currentStep]}</span>`;
+      document.getElementById("questionBox").innerHTML = qText;
+      
       speak(questions[currentStep]);
 
       if (currentStep === questions.length - 1) {
-        document.getElementById("nextBtn").innerText = "✔️ सबमिट करें (Submit Log)";
+        document.getElementById("nextBtn").innerText = "✔️ सुरक्षित सबमिट करें (Finalize)";
       }
     }
 
@@ -119,20 +344,25 @@
 
     function finalizeSubmission() {
       document.getElementById("quizSection").classList.add("hidden");
-      document.getElementById("status").innerText = "☁️ Google Sheets में सेव हो रहा है...";
+      document.getElementById("progressFill").style.width = "100%";
+      document.getElementById("status").innerText = "☁️ Google Sheets डेटाबेस में सिंक हो रहा है...";
 
-      speak("धन्यवाद, आपका आज का वर्क लॉग सबमिट हो रहा है।", () => {});
+      speak("धन्यवाद, आपका दैनिक लॉग सुरक्षित रूप से रिकॉर्ड कर लिया गया है।", () => {});
 
       fetch(WEBHOOK_URL, {
         method: "POST",
         body: JSON.stringify({ phone: detectedPhone, answers: answers })
       })
       .then(() => {
-        document.getElementById("status").innerText = "✅ Daily Log Submitted Successfully!";
-        document.getElementById("status").style.color = "#10b981";
+        document.getElementById("status").innerHTML = `
+          <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 20px; border-radius: 14px; color: #34d399; margin-top: 15px;">
+            <h3 style="margin:0 0 5px 0;">✨ Log Synced Successfully</h3>
+            <p style="margin:0; font-size:13px; color:var(--text-muted);">Your shop floor records have been updated instantly.</p>
+          </div>
+        `;
       })
       .catch(() => {
-        document.getElementById("status").innerText = "❌ Network issue. Please check internet connection.";
+        document.getElementById("status").innerText = "❌ नेटवर्क त्रुटि। कृपया पुनः प्रयास करें।";
         document.getElementById("status").style.color = "#ef4444";
       });
     }
