@@ -6,9 +6,9 @@
   <title>Aryavarta Neural Voice Logger</title>
   <style>
     :root {
-      --bg-gradient: radial-gradient(circle at top, #1e1b4b, #0f172a, #020617);
-      --card-bg: rgba(30, 41, 59, 0.7);
-      --border-glow: rgba(56, 189, 248, 0.3);
+      --bg-gradient: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #0f172a 60%, #020617 100%);
+      --card-bg: rgba(15, 23, 42, 0.75);
+      --border-glow: rgba(56, 189, 248, 0.4);
       --accent-cyan: #38bdf8;
       --accent-emerald: #10b981;
       --text-main: #f8fafc;
@@ -34,138 +34,172 @@
       max-width: 480px;
       padding: 20px;
       box-sizing: border-box;
+      position: relative;
+    }
+
+    /* Ambient Cinematic Background Glow */
+    .container::before {
+      content: '';
+      position: absolute;
+      top: -20px; left: -20px; right: -20px; bottom: -20px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(16, 185, 129, 0.05));
+      border-radius: 35px;
+      z-index: -1;
+      filter: blur(30px);
+      animation: ambientPulse 6s infinite alternate ease-in-out;
+    }
+
+    @keyframes ambientPulse {
+      0% { opacity: 0.4; transform: scale(0.98); }
+      100% { opacity: 0.9; transform: scale(1.02); }
     }
 
     .card {
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      padding: 35px 25px;
-      border-radius: 24px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 40px 25px;
+      border-radius: 28px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15);
       border: 1px solid var(--border-glow);
     }
 
     .brand-logo {
-      font-size: 32px;
-      margin-bottom: 5px;
-      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      font-size: 34px;
+      margin-bottom: 2px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8, #34d399);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      font-weight: 800;
+      font-weight: 900;
+      letter-spacing: -0.5px;
     }
 
     .subtitle {
       color: var(--text-muted);
-      font-size: 13px;
+      font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 2px;
+      letter-spacing: 3px;
       margin-bottom: 25px;
     }
 
     .badge {
-      background: rgba(14, 165, 233, 0.15);
+      background: rgba(14, 165, 233, 0.12);
       color: var(--accent-cyan);
       font-size: 13px;
-      padding: 6px 14px;
+      padding: 8px 16px;
       border-radius: 30px;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      margin-bottom: 20px;
-      border: 1px solid rgba(56, 189, 248, 0.2);
+      gap: 8px;
+      margin-bottom: 22px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      font-weight: 500;
     }
 
+    /* Super Cinematic Audio Wave Bars */
     .audio-visualizer {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 4px;
-      height: 35px;
-      margin: 15px 0 25px 0;
-      opacity: 0.3;
+      gap: 5px;
+      height: 40px;
+      margin: 10px 0 20px 0;
+      opacity: 0.2;
       transition: opacity 0.3s ease;
     }
-    .audio-visualizer.active { opacity: 1; }
+    .audio-visualizer.active {
+      opacity: 1;
+    }
     .bar {
       width: 4px;
       height: 8px;
       background: var(--accent-cyan);
       border-radius: 4px;
-      animation: pulseWave 1.2s infinite ease-in-out;
+      animation: pulseWave 1s infinite ease-in-out;
     }
-    .bar:nth-child(2) { animation-delay: 0.1s; }
-    .bar:nth-child(3) { animation-delay: 0.2s; }
-    .bar:nth-child(4) { animation-delay: 0.3s; }
-    .bar:nth-child(5) { animation-delay: 0.4s; }
+    .bar:nth-child(1) { animation-delay: 0.0s; }
+    .bar:nth-child(2) { animation-delay: 0.15s; }
+    .bar:nth-child(3) { animation-delay: 0.3s; }
+    .bar:nth-child(4) { animation-delay: 0.45s; }
+    .bar:nth-child(5) { animation-delay: 0.6s; }
 
     @keyframes pulseWave {
-      0%, 100% { height: 8px; background: var(--accent-cyan); }
-      50% { height: 28px; background: #818cf8; box-shadow: 0 0 10px var(--accent-cyan); }
+      0%, 100% { height: 6px; background: var(--accent-cyan); }
+      50% { height: 32px; background: #34d399; box-shadow: 0 0 15px var(--accent-cyan); }
     }
 
     .progress-track {
       width: 100%;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 2px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
       margin-bottom: 25px;
       overflow: hidden;
     }
     .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #38bdf8, #10b981);
+      background: linear-gradient(90deg, #38bdf8, #34d399);
       width: 0%;
-      transition: width 0.5s ease;
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     #questionBox {
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 600;
       color: var(--text-main);
       margin-bottom: 20px;
       line-height: 1.5;
-      min-height: 56px;
+      min-height: 60px;
     }
 
     textarea {
       width: 100%;
-      padding: 16px;
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(15, 23, 42, 0.6);
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(2, 6, 23, 0.6);
       color: #fff;
       font-size: 16px;
-      min-height: 110px;
+      min-height: 120px;
       resize: none;
       box-sizing: border-box;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       outline: none;
       font-family: inherit;
     }
     textarea:focus {
       border-color: var(--accent-cyan);
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.25);
+      background: rgba(2, 6, 23, 0.85);
     }
 
     .btn {
       background: linear-gradient(135deg, #10b981, #059669);
       color: #fff;
       border: none;
-      padding: 16px 28px;
-      border-radius: 14px;
+      padding: 18px 30px;
+      border-radius: 16px;
       font-size: 17px;
       font-weight: 700;
       cursor: pointer;
       width: 100%;
-      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.35);
       margin-top: 20px;
-      transition: 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 35px rgba(16, 185, 129, 0.5);
+    }
+    .btn:active {
+      transform: translateY(0);
     }
     .btn:disabled {
       background: #334155;
       color: #64748b;
       cursor: not-allowed;
       box-shadow: none;
+      transform: none;
     }
 
     #status {
@@ -173,12 +207,21 @@
       font-size: 14px;
       color: var(--text-muted);
     }
+
     .hidden { display: none !important; }
+
+    .fade-in {
+      animation: fadeInAnim 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fadeInAnim {
+      from { opacity: 0; transform: scale(0.97) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="card">
+    <div class="card fade-in">
       <div class="brand-logo">⚡ ARYAVARTA</div>
       <div class="subtitle">Neural Shop Floor Intelligence</div>
       
@@ -205,7 +248,7 @@
         </div>
 
         <div id="questionBox">Initializing Neural Voice...</div>
-        <textarea id="answerInput" placeholder="यहाँ अपना उत्तर लिखें..."></textarea>
+        <textarea id="answerInput" placeholder="यहाँ अपना उत्तर लिखें... (Hindi, Marathi, English)"></textarea>
         <button class="btn" id="nextBtn" onclick="submitAnswer()">अगला चरण ➔ (Proceed)</button>
       </div>
 
@@ -214,7 +257,7 @@
   </div>
 
   <script>
-    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwquZGro0VtZ-I4jegMaMiigBASs1yJ8WY50i_JkC8tofCK6o4oHPhgG3t3lF0c-IH2/exec";
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzU06YZB3YCuNph4T9_hOp9KmQI3sbIwpgWivOndgUxw4AGG6UutjNTpqeIbFrHMjxh/exec";
 
     const questions = [
       "आज आपने किस प्रोजेक्ट पर काम किया?",
@@ -235,33 +278,46 @@
       if (detectedPhone.length === 10) {
         document.getElementById("badgeText").innerText = "Node Verified: +91 " + detectedPhone;
       } else {
-        // ERROR STATE: Phone parameter missing in URL
         document.getElementById("badgeText").innerText = "Node Unauthenticated";
         document.getElementById("phoneBadge").style.borderColor = "rgba(239, 68, 68, 0.4)";
         document.getElementById("phoneBadge").style.color = "#ef4444";
         document.getElementById("startBtn").disabled = true;
         document.getElementById("startBtn").style.background = "#334155";
-        document.getElementById("instructionText").innerHTML = "<b style='color:#ef4444;'>त्रुटि: लिंक में मोबाइल नंबर गायब है।</b><br>कृपया सीधे ओपन न करें। Slack चैनल में दिए गए अपने व्यक्तिगत लिंक पर क्लिक करें।";
+        document.getElementById("instructionText").innerHTML = "<b style='color:#ef4444;'>त्रुटि: लिंक में मोबाइल नंबर गायब है।</b><br>कृपया Slack चैनल में दिए गए अपने व्यक्तिगत लिंक पर क्लिक करें।";
       }
     };
 
+    // Lag-Free Speech Synthesis Queue
     function speak(text, callback) {
       if (!synth) { if (callback) callback(); return; }
-      synth.cancel();
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'hi-IN';
-      utter.rate = 0.95;
+      
+      synth.cancel(); // Clears any hanging audio queues instantly to prevent lag
+      
+      setTimeout(() => {
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'hi-IN';
+        utter.rate = 0.95;
 
-      const visualizer = document.getElementById("audioVisualizer");
-      utter.onstart = () => visualizer.classList.add("active");
-      utter.onend = () => { visualizer.classList.remove("active"); if (callback) callback(); };
-      synth.speak(utter);
+        const visualizer = document.getElementById("audioVisualizer");
+        
+        utter.onstart = () => visualizer.classList.add("active");
+        utter.onend = () => { 
+          visualizer.classList.remove("active"); 
+          if (callback) callback(); 
+        };
+        
+        synth.speak(utter);
+      }, 150);
     }
 
     function startLogging() {
       if (detectedPhone.length !== 10) return;
       document.getElementById("startSection").classList.add("hidden");
-      document.getElementById("quizSection").classList.remove("hidden");
+      
+      const quiz = document.getElementById("quizSection");
+      quiz.classList.remove("hidden");
+      quiz.classList.add("fade-in");
+      
       askQuestion();
     }
 
@@ -273,6 +329,7 @@
       document.getElementById("progressFill").style.width = progressPercent + "%";
       
       document.getElementById("questionBox").innerHTML = `प्रश्न ${currentStep + 1} / 4<br><span style="color:var(--accent-cyan);">${questions[currentStep]}</span>`;
+      
       speak(questions[currentStep]);
 
       if (currentStep === questions.length - 1) {
@@ -287,14 +344,17 @@
       answers.push(val);
       currentStep++;
 
-      if (currentStep < questions.length) { askQuestion(); } 
-      else { finalizeSubmission(); }
+      if (currentStep < questions.length) { 
+        askQuestion(); 
+      } else { 
+        finalizeSubmission(); 
+      }
     }
 
     function finalizeSubmission() {
       document.getElementById("quizSection").classList.add("hidden");
       document.getElementById("progressFill").style.width = "100%";
-      document.getElementById("status").innerText = "☁️ Google Sheets डेटाबेस में सिंक हो रहा है...";
+      document.getElementById("status").innerHTML = `<div style="color:var(--accent-cyan); font-weight:600; margin-top:10px;">☁️ Google Sheets डेटाबेस में सिंक हो रहा है...</div>`;
 
       speak("धन्यवाद, आपका दैनिक लॉग सुरक्षित रूप से रिकॉर्ड कर लिया गया है।", () => {});
 
@@ -304,8 +364,8 @@
       })
       .then(() => {
         document.getElementById("status").innerHTML = `
-          <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 20px; border-radius: 14px; color: #34d399; margin-top: 15px;">
-            <h3 style="margin:0 0 5px 0;">✨ Log Synced Successfully</h3>
+          <div class="fade-in" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); padding: 22px; border-radius: 18px; color: #34d399; margin-top: 15px; box-shadow: 0 10px 30px rgba(16,185,129,0.2);">
+            <h3 style="margin:0 0 6px 0; font-size:20px;">✨ Log Synced Successfully</h3>
             <p style="margin:0; font-size:13px; color:var(--text-muted);">Your shop floor records have been updated instantly.</p>
           </div>
         `;
