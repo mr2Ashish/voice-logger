@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aryavarta Neural Voice Logger</title>
+  <title>Aryavarta Quantum Neural Logger</title>
   <style>
     :root {
-      --bg-gradient: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #0f172a 60%, #020617 100%);
-      --card-bg: rgba(15, 23, 42, 0.75);
-      --border-glow: rgba(56, 189, 248, 0.4);
-      --accent-cyan: #38bdf8;
-      --accent-emerald: #10b981;
+      --space-bg: #020617;
+      --card-bg: rgba(15, 23, 42, 0.65);
+      --neon-cyan: #38bdf8;
+      --neon-emerald: #34d399;
+      --neon-purple: #818cf8;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
     }
@@ -24,9 +24,18 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: var(--bg-gradient);
+      background: var(--space-bg);
       color: var(--text-main);
-      overflow-x: hidden;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Live Interactive Starfield Canvas */
+    #spaceCanvas {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
     }
 
     .container {
@@ -35,39 +44,39 @@
       padding: 20px;
       box-sizing: border-box;
       position: relative;
-    }
-
-    /* Ambient Cinematic Background Glow */
-    .container::before {
-      content: '';
-      position: absolute;
-      top: -20px; left: -20px; right: -20px; bottom: -20px;
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(16, 185, 129, 0.05));
-      border-radius: 35px;
-      z-index: -1;
-      filter: blur(30px);
-      animation: ambientPulse 6s infinite alternate ease-in-out;
-    }
-
-    @keyframes ambientPulse {
-      0% { opacity: 0.4; transform: scale(0.98); }
-      100% { opacity: 0.9; transform: scale(1.02); }
+      z-index: 2;
     }
 
     .card {
       background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
       padding: 40px 25px;
-      border-radius: 28px;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-      border: 1px solid var(--border-glow);
+      border-radius: 30px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 40px rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Cybernetic Corner Accents */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100px; height: 3px;
+      background: linear-gradient(90deg, var(--neon-cyan), transparent);
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; right: 0; width: 100px; height: 3px;
+      background: linear-gradient(270deg, var(--neon-emerald), transparent);
     }
 
     .brand-logo {
       font-size: 34px;
       margin-bottom: 2px;
-      background: linear-gradient(135deg, #38bdf8, #818cf8, #34d399);
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple), var(--neon-emerald));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       font-weight: 900;
@@ -76,75 +85,86 @@
 
     .subtitle {
       color: var(--text-muted);
-      font-size: 12px;
+      font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 3px;
+      letter-spacing: 4px;
       margin-bottom: 25px;
     }
 
     .badge {
-      background: rgba(14, 165, 233, 0.12);
-      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--neon-cyan);
       font-size: 13px;
-      padding: 8px 16px;
+      padding: 8px 18px;
       border-radius: 30px;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 22px;
+      margin-bottom: 20px;
       border: 1px solid rgba(56, 189, 248, 0.3);
-      font-weight: 500;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
     }
 
-    /* Super Cinematic Audio Wave Bars */
-    .audio-visualizer {
+    /* Holographic AI Core Orb Character */
+    .ai-orb-container {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 5px;
-      height: 40px;
+      height: 70px;
       margin: 10px 0 20px 0;
-      opacity: 0.2;
-      transition: opacity 0.3s ease;
     }
-    .audio-visualizer.active {
-      opacity: 1;
-    }
-    .bar {
-      width: 4px;
-      height: 8px;
-      background: var(--accent-cyan);
-      border-radius: 4px;
-      animation: pulseWave 1s infinite ease-in-out;
-    }
-    .bar:nth-child(1) { animation-delay: 0.0s; }
-    .bar:nth-child(2) { animation-delay: 0.15s; }
-    .bar:nth-child(3) { animation-delay: 0.3s; }
-    .bar:nth-child(4) { animation-delay: 0.45s; }
-    .bar:nth-child(5) { animation-delay: 0.6s; }
 
-    @keyframes pulseWave {
-      0%, 100% { height: 6px; background: var(--accent-cyan); }
-      50% { height: 32px; background: #34d399; box-shadow: 0 0 15px var(--accent-cyan); }
+    .ai-orb {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, var(--neon-cyan), var(--space-bg));
+      box-shadow: 0 0 20px var(--neon-cyan), inset 0 0 10px rgba(255, 255, 255, 0.5);
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+
+    .ai-orb.speaking {
+      animation: orbPulse 0.8s infinite alternate ease-in-out;
+    }
+
+    .ai-orb::after {
+      content: '';
+      position: absolute;
+      top: -6px; left: -6px; right: -6px; bottom: -6px;
+      border-radius: 50%;
+      border: 1px dashed rgba(56, 189, 248, 0.5);
+      animation: orbSpin 8s infinite linear;
+    }
+
+    @keyframes orbPulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 15px var(--neon-cyan), 0 0 5px var(--neon-emerald); }
+      100% { transform: scale(1.15); box-shadow: 0 0 35px var(--neon-cyan), 0 0 20px var(--neon-emerald); }
+    }
+
+    @keyframes orbSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     .progress-track {
       width: 100%;
-      height: 5px;
+      height: 4px;
       background: rgba(255, 255, 255, 0.08);
-      border-radius: 3px;
+      border-radius: 2px;
       margin-bottom: 25px;
       overflow: hidden;
     }
     .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #38bdf8, #34d399);
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-emerald));
       width: 0%;
       transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 10px var(--neon-cyan);
     }
 
     #questionBox {
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 600;
       color: var(--text-main);
       margin-bottom: 20px;
@@ -156,11 +176,11 @@
       width: 100%;
       padding: 18px;
       border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(2, 6, 23, 0.6);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      background: rgba(2, 6, 23, 0.7);
       color: #fff;
       font-size: 16px;
-      min-height: 120px;
+      min-height: 110px;
       resize: none;
       box-sizing: border-box;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -168,13 +188,13 @@
       font-family: inherit;
     }
     textarea:focus {
-      border-color: var(--accent-cyan);
-      box-shadow: 0 0 25px rgba(56, 189, 248, 0.25);
-      background: rgba(2, 6, 23, 0.85);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.3), inset 0 0 10px rgba(56, 189, 248, 0.1);
+      background: rgba(2, 6, 23, 0.9);
     }
 
     .btn {
-      background: linear-gradient(135deg, #10b981, #059669);
+      background: linear-gradient(135deg, var(--neon-emerald), #059669);
       color: #fff;
       border: none;
       padding: 18px 30px;
@@ -195,8 +215,8 @@
       transform: translateY(0);
     }
     .btn:disabled {
-      background: #334155;
-      color: #64748b;
+      background: #1e293b;
+      color: #475569;
       cursor: not-allowed;
       box-shadow: none;
       transform: none;
@@ -214,27 +234,30 @@
       animation: fadeInAnim 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes fadeInAnim {
-      from { opacity: 0; transform: scale(0.97) translateY(10px); }
+      from { opacity: 0; transform: scale(0.96) translateY(12px); }
       to { opacity: 1; transform: scale(1) translateY(0); }
     }
   </style>
 </head>
 <body>
+  <!-- Hyperrealistic 3D Starfield Background Canvas -->
+  <canvas id="spaceCanvas"></canvas>
+
   <div class="container">
     <div class="card fade-in">
       <div class="brand-logo">⚡ ARYAVARTA</div>
-      <div class="subtitle">Neural Shop Floor Intelligence</div>
+      <div class="subtitle">Quantum Neural Systems</div>
       
       <div class="badge" id="phoneBadge">
-        <span>🔒</span> <span id="badgeText">Verifying Secure Node...</span>
+        <span>🛡️</span> <span id="badgeText">Establishing Link...</span>
       </div>
 
       <!-- Start View -->
       <div id="startSection">
-        <p id="instructionText" style="color: var(--text-muted); font-size: 15px; margin-bottom: 30px; line-height: 1.6;">
-          दैनिक रिपोर्टिंग सिस्टम सक्रिय है। रोबोट आपके प्रश्नों को वाचित करेगा, और आप किसी भी भाषा में टाइप कर सकते हैं।
+        <p id="instructionText" style="color: var(--text-muted); font-size: 14px; margin-bottom: 25px; line-height: 1.6;">
+          क्वांटम वॉयस लॉगिंग सिस्टम तैयार है। रोबोट आपका मार्गदर्शन करेगा, और आप किसी भी भाषा में अपना विवरण दर्ज कर सकते हैं।
         </p>
-        <button class="btn" id="startBtn" onclick="startLogging()">▶️ सत्र शुरू करें (Start Session)</button>
+        <button class="btn" id="startBtn" onclick="startLogging()">▶️ क्वांटम सत्र शुरू करें (Initiate)</button>
       </div>
 
       <!-- Active Quiz View -->
@@ -243,11 +266,12 @@
           <div class="progress-fill" id="progressFill"></div>
         </div>
 
-        <div class="audio-visualizer" id="audioVisualizer">
-          <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <!-- Holographic AI Core Orb Character -->
+        <div class="ai-orb-container">
+          <div class="ai-orb" id="aiOrb"></div>
         </div>
 
-        <div id="questionBox">Initializing Neural Voice...</div>
+        <div id="questionBox">Synchronizing Neural Interface...</div>
         <textarea id="answerInput" placeholder="यहाँ अपना उत्तर लिखें... (Hindi, Marathi, English)"></textarea>
         <button class="btn" id="nextBtn" onclick="submitAnswer()">अगला चरण ➔ (Proceed)</button>
       </div>
@@ -257,6 +281,52 @@
   </div>
 
   <script>
+    // --- 3D INTERACTIVE SPACE STARFIELD ANIMATION ENGINE ---
+    const canvas = document.getElementById("spaceCanvas");
+    const ctx = canvas.getContext("2d");
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener("resize", () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    const stars = Array.from({ length: 150 }, () => ({
+      x: (Math.random() - 0.5) * width,
+      y: (Math.random() - 0.5) * height,
+      z: Math.random() * width,
+      size: Math.random() * 1.5 + 0.5
+    }));
+
+    function animateSpace() {
+      ctx.fillStyle = "#020617";
+      ctx.fillRect(0, 0, width, height);
+      
+      const cx = width / 2;
+      const cy = height / 2;
+
+      stars.forEach(star => {
+        star.z -= 0.3;
+        if (star.z <= 0) star.z = width;
+
+        const k = 250 / star.z;
+        const px = star.x * k + cx;
+        const py = star.y * k + cy;
+
+        if (px >= 0 && px <= width && py >= 0 && py <= height) {
+          const pSize = Math.max(0, (1 - star.z / width) * star.size * 2);
+          ctx.fillStyle = "rgba(56, 189, 248, " + (1 - star.z / width) + ")";
+          ctx.beginPath();
+          ctx.arc(px, py, pSize, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+      requestAnimationFrame(animateSpace);
+    }
+    animateSpace();
+
+    // --- APP CORE & SPEECH LOGIC ---
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzU06YZB3YCuNph4T9_hOp9KmQI3sbIwpgWivOndgUxw4AGG6UutjNTpqeIbFrHMjxh/exec";
 
     const questions = [
@@ -276,33 +346,31 @@
       detectedPhone = (urlParams.get("phone") || "").replace(/[^0-9]/g, "").slice(-10);
 
       if (detectedPhone.length === 10) {
-        document.getElementById("badgeText").innerText = "Node Verified: +91 " + detectedPhone;
+        document.getElementById("badgeText").innerText = "Quantum Node: +91 " + detectedPhone;
       } else {
-        document.getElementById("badgeText").innerText = "Node Unauthenticated";
+        document.getElementById("badgeText").innerText = "Link Unauthenticated";
         document.getElementById("phoneBadge").style.borderColor = "rgba(239, 68, 68, 0.4)";
         document.getElementById("phoneBadge").style.color = "#ef4444";
         document.getElementById("startBtn").disabled = true;
-        document.getElementById("startBtn").style.background = "#334155";
-        document.getElementById("instructionText").innerHTML = "<b style='color:#ef4444;'>त्रुटि: लिंक में मोबाइल नंबर गायब है।</b><br>कृपया Slack चैनल में दिए गए अपने व्यक्तिगत लिंक पर क्लिक करें।";
+        document.getElementById("startBtn").style.background = "#1e293b";
+        document.getElementById("instructionText").innerHTML = "<b style='color:#ef4444;'>सुरक्षा त्रुटि: नोड आईडी अनुपस्थित है।</b><br>कृपया Slack चैनल में दिए गए अधिकृत लिंक का उपयोग करें।";
       }
     };
 
-    // Lag-Free Speech Synthesis Queue
     function speak(text, callback) {
       if (!synth) { if (callback) callback(); return; }
-      
-      synth.cancel(); // Clears any hanging audio queues instantly to prevent lag
+      synth.cancel();
       
       setTimeout(() => {
         const utter = new SpeechSynthesisUtterance(text);
         utter.lang = 'hi-IN';
         utter.rate = 0.95;
 
-        const visualizer = document.getElementById("audioVisualizer");
+        const orb = document.getElementById("aiOrb");
         
-        utter.onstart = () => visualizer.classList.add("active");
+        utter.onstart = () => orb.classList.add("speaking");
         utter.onend = () => { 
-          visualizer.classList.remove("active"); 
+          orb.classList.remove("speaking"); 
           if (callback) callback(); 
         };
         
@@ -328,12 +396,12 @@
       const progressPercent = ((currentStep) / questions.length) * 100;
       document.getElementById("progressFill").style.width = progressPercent + "%";
       
-      document.getElementById("questionBox").innerHTML = `प्रश्न ${currentStep + 1} / 4<br><span style="color:var(--accent-cyan);">${questions[currentStep]}</span>`;
+      document.getElementById("questionBox").innerHTML = `क्वांटम चरण ${currentStep + 1} / 4<br><span style="color:var(--neon-cyan);">${questions[currentStep]}</span>`;
       
       speak(questions[currentStep]);
 
       if (currentStep === questions.length - 1) {
-        document.getElementById("nextBtn").innerText = "✔️ सुरक्षित सबमिट करें (Finalize)";
+        document.getElementById("nextBtn").innerText = "✔️ क्वांटम सिंक करें (Finalize)";
       }
     }
 
@@ -354,9 +422,9 @@
     function finalizeSubmission() {
       document.getElementById("quizSection").classList.add("hidden");
       document.getElementById("progressFill").style.width = "100%";
-      document.getElementById("status").innerHTML = `<div style="color:var(--accent-cyan); font-weight:600; margin-top:10px;">☁️ Google Sheets डेटाबेस में सिंक हो रहा है...</div>`;
+      document.getElementById("status").innerHTML = `<div style="color:var(--neon-cyan); font-weight:600; margin-top:10px;">☁️ Google Sheets क्लाउड में डेटा सिंक हो रहा है...</div>`;
 
-      speak("धन्यवाद, आपका दैनिक लॉग सुरक्षित रूप से रिकॉर्ड कर लिया गया है।", () => {});
+      speak("धन्यवाद, आपका दैनिक लॉग क्वांटम डेटाबेस में सुरक्षित रूप से रिकॉर्ड कर लिया गया है।", () => {});
 
       fetch(WEBHOOK_URL, {
         method: "POST",
@@ -365,8 +433,8 @@
       .then(() => {
         document.getElementById("status").innerHTML = `
           <div class="fade-in" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); padding: 22px; border-radius: 18px; color: #34d399; margin-top: 15px; box-shadow: 0 10px 30px rgba(16,185,129,0.2);">
-            <h3 style="margin:0 0 6px 0; font-size:20px;">✨ Log Synced Successfully</h3>
-            <p style="margin:0; font-size:13px; color:var(--text-muted);">Your shop floor records have been updated instantly.</p>
+            <h3 style="margin:0 0 6px 0; font-size:20px;">✨ Sync Completed</h3>
+            <p style="margin:0; font-size:13px; color:var(--text-muted);">Shop floor telemetry successfully transmitted.</p>
           </div>
         `;
       })
