@@ -44,8 +44,6 @@
       border-radius: 24px;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
       border: 1px solid var(--border-glow);
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      position: relative;
     }
 
     .brand-logo {
@@ -55,7 +53,6 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       font-weight: 800;
-      letter-spacing: -0.5px;
     }
 
     .subtitle {
@@ -79,7 +76,6 @@
       border: 1px solid rgba(56, 189, 248, 0.2);
     }
 
-    /* Cinematic Robot Audio Wave Visualizer */
     .audio-visualizer {
       display: flex;
       justify-content: center;
@@ -90,9 +86,7 @@
       opacity: 0.3;
       transition: opacity 0.3s ease;
     }
-    .audio-visualizer.active {
-      opacity: 1;
-    }
+    .audio-visualizer.active { opacity: 1; }
     .bar {
       width: 4px;
       height: 8px;
@@ -122,7 +116,7 @@
       height: 100%;
       background: linear-gradient(90deg, #38bdf8, #10b981);
       width: 0%;
-      transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: width 0.5s ease;
     }
 
     #questionBox {
@@ -145,14 +139,12 @@
       min-height: 110px;
       resize: none;
       box-sizing: border-box;
-      transition: all 0.3s ease;
       outline: none;
       font-family: inherit;
     }
     textarea:focus {
       border-color: var(--accent-cyan);
       box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
-      background: rgba(15, 23, 42, 0.9);
     }
 
     .btn {
@@ -165,83 +157,55 @@
       font-weight: 700;
       cursor: pointer;
       width: 100%;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
       margin-top: 20px;
-    }
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 15px 30px rgba(16, 185, 129, 0.4);
-    }
-    .btn:active {
-      transform: translateY(0);
+      transition: 0.2s;
     }
     .btn:disabled {
       background: #334155;
       color: #64748b;
       cursor: not-allowed;
       box-shadow: none;
-      transform: none;
     }
 
     #status {
       margin-top: 20px;
       font-size: 14px;
       color: var(--text-muted);
-      font-weight: 500;
     }
-
-    .hidden {
-      display: none !important;
-    }
-
-    /* Cinematic Fade Animation */
-    .fade-in {
-      animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="card fade-in">
+    <div class="card">
       <div class="brand-logo">⚡ ARYAVARTA</div>
       <div class="subtitle">Neural Shop Floor Intelligence</div>
       
       <div class="badge" id="phoneBadge">
-        <span>🔒</span> <span>Verifying Secure Node...</span>
+        <span>🔒</span> <span id="badgeText">Verifying Secure Node...</span>
       </div>
 
       <!-- Start View -->
       <div id="startSection">
-        <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 30px; line-height: 1.6;">
+        <p id="instructionText" style="color: var(--text-muted); font-size: 15px; margin-bottom: 30px; line-height: 1.6;">
           दैनिक रिपोर्टिंग सिस्टम सक्रिय है। रोबोट आपके प्रश्नों को वाचित करेगा, और आप किसी भी भाषा में टाइप कर सकते हैं।
         </p>
         <button class="btn" id="startBtn" onclick="startLogging()">▶️ सत्र शुरू करें (Start Session)</button>
       </div>
 
       <!-- Active Quiz View -->
-      <div id="quizSection" class="hidden fade-in">
+      <div id="quizSection" class="hidden">
         <div class="progress-track">
           <div class="progress-fill" id="progressFill"></div>
         </div>
 
-        <!-- Animated Audio Wave Visualizer -->
         <div class="audio-visualizer" id="audioVisualizer">
-          <div class="bar"></div>
-          <div class="bar"></div>
-          <div class="bar"></div>
-          <div class="bar"></div>
-          <div class="bar"></div>
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
         </div>
 
         <div id="questionBox">Initializing Neural Voice...</div>
-        
-        <textarea id="answerInput" placeholder="यहाँ अपना उत्तर लिखें... (Type in Hindi, Marathi or English)"></textarea>
-        
+        <textarea id="answerInput" placeholder="यहाँ अपना उत्तर लिखें..."></textarea>
         <button class="btn" id="nextBtn" onclick="submitAnswer()">अगला चरण ➔ (Proceed)</button>
       </div>
 
@@ -250,7 +214,6 @@
   </div>
 
   <script>
-    // Paste your Google Apps Script Web App Deployment URL here
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzU06YZB3YCuNph4T9_hOp9KmQI3sbIwpgWivOndgUxw4AGG6UutjNTpqeIbFrHMjxh/exec";
 
     const questions = [
@@ -270,39 +233,33 @@
       detectedPhone = (urlParams.get("phone") || "").replace(/[^0-9]/g, "").slice(-10);
 
       if (detectedPhone.length === 10) {
-        document.getElementById("phoneBadgeinnerHTML = `<span>🛡️</span> <span>Node Verified: +91 ${detectedPhone}</span>`;
+        document.getElementById("badgeText").innerText = "Node Verified: +91 " + detectedPhone;
       } else {
-        document.getElementById("phoneBadge").innerHTML = `<span>⚠️</span> <span>Node Unauthenticated</span>`;
+        // ERROR STATE: Phone parameter missing in URL
+        document.getElementById("badgeText").innerText = "Node Unauthenticated";
         document.getElementById("phoneBadge").style.borderColor = "rgba(239, 68, 68, 0.4)";
         document.getElementById("phoneBadge").style.color = "#ef4444";
         document.getElementById("startBtn").disabled = true;
-        document.getElementById("status").innerText = "कृपया Slack में दिए गए सुरक्षित लिंक से ओपन करें।";
+        document.getElementById("startBtn").style.background = "#334155";
+        document.getElementById("instructionText").innerHTML = "<b style='color:#ef4444;'>त्रुटि: लिंक में मोबाइल नंबर गायब है।</b><br>कृपया सीधे ओपन न करें। Slack चैनल में दिए गए अपने व्यक्तिगत लिंक पर क्लिक करें।";
       }
     };
 
     function speak(text, callback) {
       if (!synth) { if (callback) callback(); return; }
       synth.cancel();
-      
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = 'hi-IN';
       utter.rate = 0.95;
 
       const visualizer = document.getElementById("audioVisualizer");
-      
-      utter.onstart = () => {
-        visualizer.classList.add("active");
-      };
-
-      utter.onend = () => {
-        visualizer.classList.remove("active");
-        if (callback) callback();
-      };
-
+      utter.onstart = () => visualizer.classList.add("active");
+      utter.onend = () => { visualizer.classList.remove("active"); if (callback) callback(); };
       synth.speak(utter);
     }
 
     function startLogging() {
+      if (detectedPhone.length !== 10) return;
       document.getElementById("startSection").classList.add("hidden");
       document.getElementById("quizSection").classList.remove("hidden");
       askQuestion();
@@ -315,9 +272,7 @@
       const progressPercent = ((currentStep) / questions.length) * 100;
       document.getElementById("progressFill").style.width = progressPercent + "%";
       
-      const qText = `प्रश्न ${currentStep + 1} / 4<br><span style="color:var(--accent-cyan);">${questions[currentStep]}</span>`;
-      document.getElementById("questionBox").innerHTML = qText;
-      
+      document.getElementById("questionBox").innerHTML = `प्रश्न ${currentStep + 1} / 4<br><span style="color:var(--accent-cyan);">${questions[currentStep]}</span>`;
       speak(questions[currentStep]);
 
       if (currentStep === questions.length - 1) {
@@ -327,19 +282,13 @@
 
     function submitAnswer() {
       const val = document.getElementById("answerInput").value.trim();
-      if (!val) {
-        alert("कृपया बॉक्स में अपना जवाब लिखें।");
-        return;
-      }
+      if (!val) { alert("कृपया बॉक्स में अपना जवाब लिखें।"); return; }
 
       answers.push(val);
       currentStep++;
 
-      if (currentStep < questions.length) {
-        askQuestion();
-      } else {
-        finalizeSubmission();
-      }
+      if (currentStep < questions.length) { askQuestion(); } 
+      else { finalizeSubmission(); }
     }
 
     function finalizeSubmission() {
